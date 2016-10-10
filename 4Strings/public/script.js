@@ -20,6 +20,8 @@ var stringsStrummed = [still, still, still, still];
 var stringVibration = [0, 0, 0, 0];
 var vibrationX = [0, 0, 0, 0];
 
+var isPhoneVibrating = false;
+
 var currentString = 5;
 var touch;
 
@@ -43,15 +45,19 @@ if (navigator.vibrate) {
 
 //MANAGES VISUAL VIBRATION OF GUITAR STRINGS
 function handleStrings() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);    //Clear canvas
-  for (i = 0; i < 4; i++) {                            //iterate through strings
-    if(xPos > stringsx[i]-20 && xPos < stringsx[i]+20) {  //Check if touching string
+  ctx.clearRect(0, 0, canvas.width, canvas.height);           //Clear canvas
+  for (i = 0; i < 4; i++) {                                   //iterate through strings
+    if(xPos > stringsx[i]-40 && xPos < stringsx[i]+40) {      //Check if touching string
       stringsStrummed[i] = strummed;                          //Change state of string to strummed
     }
     if(stringsStrummed[i] === strummed && xPos > stringsx[i]-160 && xPos < stringsx[i]+160) { //Constrain length string can be drawn
-      navigator.vibrate(100000);
+      if (isPhoneVibrating === false) {
+        navigator.vibrate(100000);
+        isPhoneVibrating = true;
+        console.log("START VIBRATION")
+      }
       currentString = i;
-      console.log("HIT")
+      console.log("HIT");
       ctx.beginPath();
       ctx.lineWidth = 14-(i*2);
       ctx.moveTo(stringsx[i],0);
@@ -61,6 +67,8 @@ function handleStrings() {
     } else if (stringsStrummed[i] === strummed) {
       setupVibration(i);
       navigator.vibrate(0);
+      isPhoneVibrating = false;
+      console.log("STOP VIBRATION")
     }
      if (stringsStrummed[i] === vibrating) {           //Check if string is supposed to vibrate
        ctx.beginPath();                                //Draw vibrating string
@@ -125,6 +133,7 @@ obj.addEventListener('touchend', function(event) {
   if (event.changedTouches.length == 1) {
     console.log("TOUCH ENDED");
     navigator.vibrate(0);
+    isPhoneVibrating = false;
     if (stringsStrummed[currentString] != vibrating) {
       setupVibration(currentString);
     }
